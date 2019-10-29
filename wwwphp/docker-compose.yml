@@ -1,0 +1,38 @@
+version: '3'
+services:
+  php-apache:
+    build:
+      context: ./php-build
+    #image: php:7.3-apache-stretch
+    container_name: wwwapp_php
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
+      - ./www:/var/www/html
+      - ./php.ini:/usr/local/etc/php/php.ini
+    ports:
+    - "80:80"
+  mysql:
+    image: mariadb:10
+    container_name: wwwapp_mysql
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      #- ./mysql-cnf:/etc/mysql/conf.d
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword123
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password123
+      MYSQL_DATABASE: user_db1
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: wwwapp_phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=rootpassword123
+    links:
+      - mysql
